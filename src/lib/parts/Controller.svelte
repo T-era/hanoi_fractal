@@ -1,27 +1,26 @@
 <script lang="ts">
-    import { animationInterval, manual } from "../stores/SettingStore";
+    import type { Func, Func1 } from "../callback";
+    import { manual } from "../stores/SettingStore";
     import Initializer from "./Initializer.svelte";
+    import LogarithmInput from "./LogarithmInput.svelte";
 
-    export let cnt = 0;
-    export let onStep :() => void = () => {};
-    export let onStepAll :() => void = () => {};
-    export let onStart: (cnt :number) => void = () => {};
-    let interval = 0;
-    let automationDisabled = false;
-    let intervalInput :HTMLInputElement;
+    export type Props = {
+        cnt :number,
+        interval :number,
+        onStep :Func,
+        onStepAll :Func,
+        onStart :Func1<number>,
+    };
+    let { cnt, interval = $bindable(), onStep, onStepAll, onStart } :Props = $props();
 
-    animationInterval.subscribe((value) => {
-        interval = value;
-    })
-    function onRestart(cnt :number) {
-        onStart(cnt);
-    }
+    let automationDisabled = $state(false);
+
     manual.subscribe(m => {
         automationDisabled = m;
     });
 
-    function intervalChanged() {
-        animationInterval.set(intervalInput.valueAsNumber);
+    function setInterval(val :number) {
+        interval = val;
     }
 
 </script>
@@ -30,7 +29,7 @@
     <hr class="underline"/>
     <details open>
         <summary>開始設定</summary>
-        <Initializer cnt={cnt} startCallback={onRestart} />
+        <Initializer cnt={cnt} startCallback={onStart} />
     </details>
 
     <details>
@@ -42,11 +41,11 @@
         <details>
             <summary>設定</summary>
             <div>
-                <label>
-                    <span>速さ</span>
-                    <input type="number" min="0" step="0.01" onchange={intervalChanged} bind:this={intervalInput} value={interval}/>
-                    <span>秒</span>
-                </label>
+                <LogarithmInput
+                    bind:value={() => interval, setInterval}
+                    title="速さ"
+                    base={10} init={2}
+                    inputProps={{ min: 0, max: 1000, step: 0.01 }} />
             </div>
         </details>
     </details>
@@ -55,7 +54,7 @@
 div.menu {
     text-align: start;
     width: calc(100% - 10px);
-    height: 100%;
+    height: calc(100% - 10px);
     padding: 5px;
     h1 {
         span {
@@ -67,10 +66,6 @@ div.menu {
     hr.underline {
         border-top: 2px dotted;
         margin-bottom: 2em;
-    }
-
-    input {
-        width: 40%;
     }
 }
 </style>

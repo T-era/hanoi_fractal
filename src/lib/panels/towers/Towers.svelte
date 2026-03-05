@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { onMount } from "svelte";
     import { type Panel } from "../../Hanoi";
     import { getColor, line, rect, type Pos } from "../../canvas_util";
     import { cancelDrag, dragFrom, type DragItem } from "./DragItem";
@@ -14,14 +13,14 @@
     const heightOfPanel = 20;
     const widthOfTop = 90;
     const widthOfBottom = 20;
-    export let a :Panel[] = [];
-    export let b :Panel[] = [];
-    export let c :Panel[] = [];
+
+    export type Props = { a :Panel[], b :Panel[], c :Panel[] };
+    const { a, b, c } :Props = $props();
 
     let cnv :HTMLCanvasElement;
     let temp :HTMLCanvasElement;
     let maxPanel = 0;
-    onMount(() => {
+    $effect(() => {
         maxPanel = Math.max(...[...a, ...b, ...c]);
         redraw();
     });

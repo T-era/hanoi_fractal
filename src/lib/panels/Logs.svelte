@@ -2,8 +2,14 @@
     import { A, B, C, type Motion, type Position } from "../Hanoi";
     import type { LogItem } from "../HanoiLog";
 
-    export let logs :LogItem[] = [];
-    let logText = logs.map(({panel, motion}) => `(${panel}) ${strFromMotion(motion)}`).join("\n")
+    export type Props = { logs :LogItem[] };
+    const { logs } :Props = $props();
+
+    let logText = $state("");
+
+    $effect(() => {
+        logText = logs.map(({panel, motion}) => `(${panel}) ${strFromMotion(motion)}`).join("\n")
+    })
 
     function strFromMotion(motion :Motion) {
         return `${strFromPosition(motion.from)} -> ${strFromPosition(motion.to)}`;

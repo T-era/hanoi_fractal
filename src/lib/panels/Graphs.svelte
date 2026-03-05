@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { onMount } from "svelte";
     import type { LogItem } from "../HanoiLog";
     import { A, B, C, type Motion } from "../Hanoi";
     import { getColor, line } from "../canvas_util";
@@ -8,9 +7,11 @@
     const HEIGHT = 600;
     const SCALE = 240;
 
-    export let logs :LogItem[] = [];
+    export type Props = { logs :LogItem[] };
+    const { logs } :Props = $props()
+
     let cnv :HTMLCanvasElement;
-    onMount(() => {
+    $effect(() => {
         const ctx = cnv.getContext("2d")!;
 
         ctx.clearRect(0, 0, WIDTH, HEIGHT);

@@ -1,32 +1,28 @@
 <script lang="ts">
-    export let labels :string[] = [];
-    let selectedIndex = 0;
+    const props = $props();
+    let keys :string[] = $state([]);
+    let selectedKey :string = $state("");
 
-    function onTabSelect(label :string) {
-        return () => {
-            selectedIndex = labels.indexOf(label);
-        }
-    }
+    $effect.pre(() => {
+        keys = Object.keys(props);
+    });
+    $effect(() => {
+        selectedKey = keys[0];
+    })
 </script>
 <div class="overall">
     <div class="switcher">
-        {#each labels as label, index}
-            <label>{label}<input type="radio" onclick={onTabSelect(label)} name="tab" checked={index === 0}></label>
+        {#each keys as label}
+            <label>{label}<input type="radio" name="tab" value={label} bind:group={selectedKey}></label>
         {/each}
     </div>
     <div class="contents">
-    {#if selectedIndex === 0}
-        <slot name="a"/>
-        {:else if selectedIndex === 1}
-        <slot name="b"/>
-        {:else if selectedIndex === 2}
-        <slot name="c"/>
-    {/if}
+    {@render props[selectedKey]?.()}
     </div>
 </div>
 <style lang="scss">
 div.overall {
-    height: 100%;
+    height: calc(100% - 2px);
     div.switcher {
         text-align: start;
         vertical-align: baseline;
@@ -36,7 +32,9 @@ div.overall {
             display: inline-block;
             width: 200px;
             border: #888 1px solid;
-            border-radius: 5px;
+            border-bottom: none;
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
             background: #ddd;
 
             &:has(input:checked) {
@@ -48,6 +46,10 @@ div.overall {
         }
     }
     div.contents {
+        border: 1px #888 solid;
+        border-top: none;
+        background: white;
+        padding: 3px;
         height: calc(100% - 2em);
     }
 }

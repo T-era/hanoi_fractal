@@ -6,18 +6,15 @@
   import Tab from './lib/parts/Tab.svelte';
   import type { LogItem } from './lib/HanoiLog';
   import Graphs from './lib/panels/Graphs.svelte';
-  import { animationInterval, automation, manual } from './lib/stores/SettingStore';
+  import { automation, manual } from './lib/stores/SettingStore';
 
-  let logs :LogItem[] = []
-  let hanoi = new Hanoi(0);
-  let result :Motion[] | null = null;
-  let steps = false;
-  let currentCnt = 3;
-  let animationIntervalValue = 0.05;
+  let logs :LogItem[] = $state([])
+  let hanoi = $state(new Hanoi(0));
+  let result :Motion[] | null = $state(null);
+  let steps = $state(false);
+  let currentCnt = $state(3);
+  let animationIntervalValue = $state(100);
 
-  animationInterval.subscribe((newValue) => {
-    animationIntervalValue = newValue;
-  });
   function onStart(cnt :number) {
     currentCnt = cnt;
     logs = [];
@@ -51,7 +48,7 @@
         const panel = hanoi.apply(motion);
         logs.push({motion, panel});
         if (! loop) {
-          setTimeout(onStepAll, animationIntervalValue*1000);
+          setTimeout(onStepAll, animationIntervalValue);
         } 
       } else {
         if (loop) {
@@ -63,25 +60,36 @@
   }
 </script>
 <header>
-  <Controller cnt={currentCnt} onStep={onStep} onStepAll={onStepAll} onStart={onStart}/>
+  <Controller
+    cnt={currentCnt}
+    bind:interval={animationIntervalValue}
+    onStep={onStep}
+    onStepAll={onStepAll}
+    onStart={onStart}/>
 </header>
 <main>
-  <Tab labels={["Towers", "Log", "Graph"]}>
-    <div class="tab" slot="a">
+  <Tab>
+    {#snippet Tower()}
+    <div class="tab">
       {#key [steps]}
         <Towers a={hanoi.a} b={hanoi.b} c={hanoi.c} />
       {/key}
-    </div>
-    <div class="tab" slot="b">
+    </div>        
+    {/snippet}
+    {#snippet Log()}
+    <div class="tab">
       {#key {steps}}
         <Logs logs={logs} />
       {/key}
     </div>
-    <div class="tab" slot="c">
+    {/snippet}
+    {#snippet Graph()}
+    <div class="tab">
       {#key [steps]}
         <Graphs logs={logs} />
       {/key}
     </div>
+    {/snippet}
   </Tab>
 </main>
 

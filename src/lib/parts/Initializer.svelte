@@ -1,6 +1,8 @@
 <script lang="ts">
-    export let cnt = 0;
-    export let startCallback :(cnt :number) => void;
+    import type { Func1 } from "../callback";
+
+    type Props = { cnt :number, startCallback :Func1<number> };
+    let { cnt, startCallback } :Props = $props();
 
     function onStarted() {
         startCallback(cnt);
