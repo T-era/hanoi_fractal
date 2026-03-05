@@ -10,7 +10,7 @@
 
   let logs :LogItem[] = []
   let hanoi = new Hanoi(0);
-  let result :Motion[] = [];
+  let result :Motion[] | null = null;
   let steps = false;
   let currentCnt = 3;
   let animationIntervalValue = 0.05;
@@ -28,7 +28,9 @@
   }
   let onStep = () => {
     automation.set(() => {});
-    console.log("Steps");
+    if (! result) {
+      result = resolve(A, C, B, currentCnt);
+    }
     const motion = result.shift();
     if (motion) {
       const panel = hanoi.apply(motion);
@@ -38,12 +40,15 @@
   }
   let onStepAll = () => {
     automation.set(() => {});
+    if (! result) {
+      result = resolve(A, C, B, currentCnt);
+    }
+
     const loop = (animationIntervalValue === 0);
     do {
       const motion = result.shift();
       if (motion) {
         const panel = hanoi.apply(motion);
-        steps = ! steps;
         logs.push({motion, panel});
         if (! loop) {
           setTimeout(onStepAll, animationIntervalValue*1000);
@@ -54,6 +59,7 @@
         }
       }
     } while(loop);
+    steps = ! steps;
   }
 </script>
 <header>

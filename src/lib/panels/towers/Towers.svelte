@@ -80,7 +80,6 @@
         }
 
         const p = posFromEvent(e);
-        console.log(p.x, p.y);
         const from = nearestPole(p);
         dragging = dragFrom(from);
 
