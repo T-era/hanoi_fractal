@@ -42,21 +42,29 @@
     }
 
     const loop = (animationIntervalValue === 0);
-    do {
-      const motion = result.shift();
-      if (motion) {
-        const panel = hanoi.apply(motion);
-        logs.push({motion, panel});
-        if (! loop) {
-          setTimeout(onStepAll, animationIntervalValue);
-        } 
-      } else {
-        if (loop) {
+    if (loop) {
+      do {
+        const motion = applyOneMotion(result);
+        if (! motion) {
           break;
         }
+      } while(loop);
+      steps = ! steps;
+    } else {
+      const motion = applyOneMotion(result);
+      steps = ! steps;
+      if (motion) {
+        setTimeout(onStepAll, animationIntervalValue);
       }
-    } while(loop);
-    steps = ! steps;
+    }
+  }
+  function applyOneMotion(result :Motion[]) :Motion|undefined {
+    const motion = result.shift()
+    if (motion) {
+      const panel = hanoi.apply(motion);
+      logs.push({motion, panel});
+    }
+    return motion;
   }
 </script>
 <header>
