@@ -8,6 +8,8 @@
   import Graphs from './lib/panels/Graphs.svelte';
   import { automation, manual } from './lib/stores/SettingStore';
 
+  const LOOP_MAX = 10000; // 画面をフリーズさせないための、連続ループ回数のマックス
+
   let logs :LogItem[] = $state([])
   let hanoi = new Hanoi(0);
   let result :Generator<Motion> | null = null;
@@ -43,12 +45,17 @@
 
     const loop = (animationIntervalValue === 0);
     if (loop) {
-      do {
-        const motion = applyOneMotion(result);
+      let motion = null;
+      for (let i = 0; i < LOOP_MAX; i ++) {
+        //
+        motion = applyOneMotion(result);
         if (! motion) {
           break;
         }
-      } while(loop);
+      }
+      if (motion) {
+        setTimeout(onStepAll, 0);
+      }
       steps = ! steps;
     } else {
       const motion = applyOneMotion(result);
