@@ -1,6 +1,6 @@
 <script lang="ts">
   import Controller from './lib/parts/Controller.svelte';
-  import { A, B, C, Hanoi, resolve, type Motion } from './lib/Hanoi';
+  import { A, B, C, Hanoi, resolve, resolveG, type Motion } from './lib/Hanoi';
   import Towers from './lib/panels/towers/Towers.svelte';
   import Logs from './lib/panels/Logs.svelte';
   import Tab from './lib/parts/Tab.svelte';
@@ -9,8 +9,8 @@
   import { automation, manual } from './lib/stores/SettingStore';
 
   let logs :LogItem[] = $state([])
-  let hanoi = $state(new Hanoi(0));
-  let result :Motion[] | null = $state(null);
+  let hanoi = new Hanoi(0);
+  let result :Generator<Motion> | null = null;
   let steps = $state(false);
   let currentCnt = $state(3);
   let animationIntervalValue = $state(100);
@@ -19,16 +19,16 @@
     currentCnt = cnt;
     logs = [];
     hanoi = new Hanoi(cnt);
-    result = resolve(A, C, B, cnt);
+    result = null;
     steps = !steps;
     manual.set(false);
   }
   let onStep = () => {
     automation.set(() => {});
     if (! result) {
-      result = resolve(A, C, B, currentCnt);
+      result = resolveG(A, C, B, currentCnt);
     }
-    const motion = result.shift();
+    const motion = result.next().value;
     if (motion) {
       const panel = hanoi.apply(motion);
       steps = ! steps;
@@ -38,7 +38,7 @@
   let onStepAll = () => {
     automation.set(() => {});
     if (! result) {
-      result = resolve(A, C, B, currentCnt);
+      result = resolveG(A, C, B, currentCnt);
     }
 
     const loop = (animationIntervalValue === 0);
@@ -58,8 +58,9 @@
       }
     }
   }
-  function applyOneMotion(result :Motion[]) :Motion|undefined {
-    const motion = result.shift()
+  function applyOneMotion(result :Generator<Motion>) :Motion|undefined {
+    const next = result.next()
+    const motion = next.value;
     if (motion) {
       const panel = hanoi.apply(motion);
       logs.push({motion, panel});

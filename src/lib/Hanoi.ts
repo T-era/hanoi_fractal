@@ -52,3 +52,14 @@ export function resolve(from :Position, to :Position, other :Position, cnt :numb
         ...resolve(other, to, from, cnt - 1)
     ];
 }
+
+export function* resolveG(from :Position, to :Position, other :Position, cnt :number) :Generator<Motion> {
+    if (cnt === 0) return [];
+    for (let item of resolveG(from, other, to, cnt - 1)) {
+        yield item;
+    }
+    yield {from,to};
+    for (let item of resolveG(other, to, from, cnt - 1)) {
+        yield item;
+    }
+}
